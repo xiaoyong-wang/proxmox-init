@@ -35,25 +35,38 @@ echo -e "\e[32mUpdated Proxmox LXC images\e[0m"
 # Backup current network interfaces file
 cp /etc/network/interfaces /etc/network/interfaces.bak
 
-# Update network configuration
-sed -i '/^source \/etc\/network\/interfaces.d\/\*/i\
-auto vmbr1\n\
-iface vmbr1 inet static\n\
-    address 10.0.0.1/24\n\
-    bridge-ports none\n\
-    bridge-stp off\n\
-    bridge-fd 0\n\
-\n\
-    # NAT SETTINGS\n\
-    post-up echo 1 > /proc/sys/net/ipv4/ip_forward\n\
-    post-up iptables -t nat -A POSTROUTING -s 10.0.0.0/24 -o vmbr0 -j MASQUERADE\n\
-    post-down iptables -t nat -D POSTROUTING -s 10.0.0.0/24 -o vmbr0 -j MASQUERADE\n\
-    post-up   iptables -t raw -I PREROUTING -i fwbr+ -j CT --zone 1\n\
-    post-down iptables -t raw -D PREROUTING -i fwbr+ -j CT --zone 1' /etc/network/interfaces
+# Define the configuration to be inserted
+vmbr1_config=$(cat <<EOF
+auto vmbr1
+iface vmbr1 inet static
+    address 10.0.0.1/24
+    bridge-ports none
+    bridge-stp off
+    bridge-fd 0
+
+    # NAT SETTINGS
+    post-up echo 1 > /proc/sys/net/ipv4/ip_forward
+    post-up iptables -t nat -A POSTROUTING -s 10.0.0.0/24 -o vmbr0 -j MASQUERADE
+    post-down iptables -t nat -D POSTROUTING -s 10.0.0.0/24 -o vmbr0 -j MASQUERADE
+    post-up   iptables -t raw -I PREROUTING -i fwbr+ -j CT --zone 1
+    post-down iptables -t raw -D PREROUTING -i fwbr+ -j CT --zone 1
+EOF
+)
+
+# Insert the configuration before the source line
+awk -v new_config="$vmbr1_config" '
+/^source \/etc\/network\/interfaces.d\/\*/ {
+    print new_config
+}
+{ print }
+' /etc/network/interfaces > /etc/network/interfaces.new
+
+# Replace the old file with the new file
+mv /etc/network/interfaces.new /etc/network/interfaces
 
 echo -e "\e[32mUpdated /etc/network/interfaces\e[0m"
 
-# Bring up the new network interface
+# Apply the new network configuration
 ifup vmbr1
 echo -e "\e[32mStarted vmbr1\e[0m"
 
