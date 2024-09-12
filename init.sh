@@ -50,6 +50,7 @@ iface vmbr1 inet static
     post-down iptables -t nat -D POSTROUTING -s 10.0.0.0/24 -o vmbr0 -j MASQUERADE
     post-up   iptables -t raw -I PREROUTING -i fwbr+ -j CT --zone 1
     post-down iptables -t raw -D PREROUTING -i fwbr+ -j CT --zone 1
+    
 EOF
 )
 
