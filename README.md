@@ -1,4 +1,4 @@
-## this is for my personal use
+This script is to be used on fresh proxmox installs. It's mainly for my personal-use so there isnt much documentation here. Basically just gets everything updated and creates a bridge @ 10.0.0.1/24
 
 - Removes original apt sources
 - Adds new apt sources (debian repos, proxmox VE no-subscription repo)
