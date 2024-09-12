@@ -19,22 +19,29 @@ apt-get upgrade -y
 echo -e "\e[32mUpgraded packages\e[0m"
 pveam update
 echo -e "\e[32mUpdated Proxmox LXC images\e[0m"
-cat <<EOF > /etc/network/interfaces.d/vmbr1.cfg
-auto vmbr1
-iface vmbr1 inet static
-    address 10.0.0.1/24
-    bridge-ports none
-    bridge-stp off
-    bridge-fd 0
+cp /etc/network/interfaces /etc/network/interfaces.bak
 
-    # NAT SETTINGS
-    post-up echo 1 > /proc/sys/net/ipv4/ip_forward
-    post-up iptables -t nat -A POSTROUTING -s '10.0.0.0/24' -o vmbr0 -j MASQUERADE
-    post-down iptables -t nat -D POSTROUTING -s '10.0.0.0/24' -o vmbr0 -j MASQUERADE
-    post-up   iptables -t raw -I PREROUTING -i fwbr+ -j CT --zone 1
-    post-down iptables -t raw -D PREROUTING -i fwbr+ -j CT --zone 1
-EOF
-echo -e "\e[32mCreated vmbr1\e[0m"
+# network config in interfaces file before the source line
+{
+    echo
+    echo "auto vmbr1"
+    echo "iface vmbr1 inet static"
+    echo "    address 10.0.0.1/24"
+    echo "    bridge-ports none"
+    echo "    bridge-stp off"
+    echo "    bridge-fd 0"
+    echo
+    echo "    # NAT SETTINGS"
+    echo "    post-up echo 1 > /proc/sys/net/ipv4/ip_forward"
+    echo "    post-up iptables -t nat -A POSTROUTING -s '10.0.0.0/24' -o vmbr0 -j MASQUERADE"
+    echo "    post-down iptables -t nat -D POSTROUTING -s '10.0.0.0/24' -o vmbr0 -j MASQUERADE"
+    echo "    post-up   iptables -t raw -I PREROUTING -i fwbr+ -j CT --zone 1"
+    echo "    post-down iptables -t raw -D PREROUTING -i fwbr+ -j CT --zone 1"
+    echo
+} | sed '/^source \/etc\/network\/interfaces.d\/\*/i\' /etc/network/interfaces
+
+echo -e "\e[32mUpdated /etc/network/interfaces\e[0m"
+
 ifup vmbr1
 echo -e "\e[32mStarted vmbr1\e[0m"
 echo -e "\e[32mFeel free to setup firewall rules. It should now be compatible with the NAT bridge (vmbr1) created.\e[0m"
