@@ -37,7 +37,7 @@ EOF
 echo -e "\e[32mCreated vmbr1\e[0m"
 ifup vmbr1
 echo -e "\e[32mStarted vmbr1\e[0m"
-
+echo -e "\e[32mFeel free to setup firewall rules. It should now be compatible with the NAT bridge (vmbr1) created.\e[0m"
 # prompt to reboot the server after making all these changes
 echo "Press any key to reboot the system..."
 read -n 1 -s
