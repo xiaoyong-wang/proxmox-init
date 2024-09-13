@@ -71,6 +71,15 @@ echo -e "\e[32mUpdated /etc/network/interfaces\e[0m"
 ifup vmbr1
 echo -e "\e[32mStarted vmbr1\e[0m"
 
+# download debian iso
+apt-get install wget -y
+sudo wget -O /var/lib/vz/template/iso/debian-12.7.0-amd64-netinst.iso https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-12.7.0-amd64-netinst.iso
+echo -e "\e[32mDownloaded Debian 12 ISO for KVMs\e[0m"
+
+# download debian lxc image
+pveam download local debian-12-standard_12.7-1_amd64.tar.zst
+echo -e "\e[32mDownloaded Debian 12 image for LXC containers\e[0m"
+
 # Prompt to reboot the system
 echo -e "\e[32mFeel free to set up firewall rules. It should now be compatible with the NAT bridge (vmbr1) created.\e[0m"
 echo "Press any key to reboot the system..."
