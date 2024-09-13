@@ -1,4 +1,5 @@
-This script is to be used on fresh proxmox installs. It's mainly for my personal-use so there isnt much documentation. Basically just gets everything updated and creates a NAT bridge @ 10.0.0.1/24 and the appropriate iptables rules for it.
+This script is to be used on fresh proxmox installs. It's mainly for my personal-use so please dont expect this to work flawlessly in every aspect at any time.
+This script basically just gets everything updated and creates a NAT bridge at 10.0.0.1/24 as well as the appropriate iptables rules for it (compatible with proxmox datacenter/node-level firewall)
 
 - Removes original apt sources
 - Adds new apt sources (debian repos, proxmox VE no-subscription repo)
